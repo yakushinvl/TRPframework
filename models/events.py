@@ -12,7 +12,7 @@ def add_event(events, name, max_duration):
     events.append(event)
     return event
 
-def find_event_by_id(events, event_id):
+def find_event(events, event_id):
     for e in events:
         if e.id == event_id:
             return e

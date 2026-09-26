@@ -1,7 +1,7 @@
 import json
 from models import Student, Event, Presentation
-from models.events import find_event_by_id
-from models.students import find_student_by_id
+from models.events import find_event
+from models.students import find_student
 
 def load_students(filename):
     try:
@@ -35,8 +35,8 @@ def load_presentations(filename, events, students):
             data = json.load(f)
             presentations = []
             for d in data:
-                event = find_event_by_id(events, d["event_id"])
-                student = find_student_by_id(students, d["student_id"])
+                event = find_event(events, d["event_id"])
+                student = find_student(students, d["student_id"])
                 if event and student:
                     p = Presentation(
                         d["id"], event, student, d["title"],

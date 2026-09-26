@@ -44,9 +44,9 @@ def create_presentation(presentations, event, student, title, duration, score_1,
     presentations.append(p)
     return p
 
-def find_presentations_by_student(presentations, query):
+def find_presbystud(presentations, query):
     q = query.lower()
     return [p for p in presentations if q in p.student.name.lower()]
 
-def sort_presentations_by_score(presentations):
+def sort_presbyscore(presentations):
     return sorted(presentations, key=lambda p: p.total_score, reverse=True)

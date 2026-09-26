@@ -1,5 +1,5 @@
 from models import Event
-from models.events import add_event, find_event_by_id, sort_events
+from models.events import add_event, find_event, sort_events
 
 def test_event_creation():
     e = Event(1, "Конференция", 10)
@@ -14,10 +14,10 @@ def test_add_event():
     assert len(events) == 1
     assert events[0].max_duration == 15
 
-def test_find_event_by_id():
+def test_find_event():
     events = [Event(1, "Форум", 20)]
-    assert find_event_by_id(events, 1) is not None
-    assert find_event_by_id(events, 2) is None
+    assert find_event(events, 1) is not None
+    assert find_event(events, 2) is None
 
 def test_sort_events():
     events = [Event(1, "Форум", 10), Event(2, "Ассамблея", 10)]

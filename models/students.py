@@ -12,7 +12,7 @@ def add_student(students, name, group):
     students.append(student)
     return student
 
-def find_student_by_id(students, student_id):
+def find_student(students, student_id):
     for s in students:
         if s.id == student_id:
             return s
