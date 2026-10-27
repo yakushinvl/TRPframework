@@ -1,5 +1,9 @@
 class Student:
-    def __init__(self, id, name, group):
+    id: int
+    name: str
+    group: str
+
+    def __init__(self, id: int, name: str, group: str):
         self.id = id
         self.name = name
         self.group = group
@@ -7,13 +11,18 @@ class Student:
     def __str__(self):
         return f"[{self.id}] {self.name} ({self.group})"
 
+
 def add_student(students, name, group):
     student = Student(len(students) + 1, name, group)
     students.append(student)
     return student
 
-def find_student(students, student_id):
+
+def find_student_by_id(students, student_id):
     for s in students:
         if s.id == student_id:
             return s
     return None
+
+
+find_student = find_student_by_id

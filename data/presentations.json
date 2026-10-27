@@ -7,5 +7,14 @@
     "duration": 8,
     "score_1": 4.8,
     "score_2": 4.5
+  },
+  {
+    "id": 2,
+    "event_id": 1,
+    "student_id": 2,
+    "title": "Тест",
+    "duration": 7,
+    "score_1": 4.5,
+    "score_2": 4.5
   }
 ]

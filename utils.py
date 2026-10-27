@@ -3,11 +3,12 @@ def input_int(prompt):
         try:
             return int(input(prompt))
         except ValueError:
-            print("Ошибка: введи целое число")
+            print("ошибка: введи целое число")
+
 
 def input_float(prompt):
     while True:
         try:
             return float(input(prompt))
         except ValueError:
-            print("Ошибка: введи дробное число")
+            print("ошибка: введи число")

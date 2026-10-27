@@ -3,6 +3,7 @@ from models import Student, Event, Presentation
 from models.events import find_event
 from models.students import find_student
 
+
 def load_students(filename):
     try:
         with open(filename, "r", encoding="utf-8") as f:
@@ -11,10 +12,12 @@ def load_students(filename):
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
+
 def save_students(filename, students):
     with open(filename, "w", encoding="utf-8") as f:
         data = [{"id": s.id, "name": s.name, "group": s.group} for s in students]
         json.dump(data, f, ensure_ascii=False, indent=2)
+
 
 def load_events(filename):
     try:
@@ -24,10 +27,12 @@ def load_events(filename):
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
+
 def save_events(filename, events):
     with open(filename, "w", encoding="utf-8") as f:
         data = [{"id": e.id, "name": e.name, "max_duration": e.max_duration} for e in events]
         json.dump(data, f, ensure_ascii=False, indent=2)
+
 
 def load_presentations(filename, events, students):
     try:
@@ -46,6 +51,7 @@ def load_presentations(filename, events, students):
             return presentations
     except (FileNotFoundError, json.JSONDecodeError):
         return []
+
 
 def save_presentations(filename, presentations):
     with open(filename, "w", encoding="utf-8") as f:

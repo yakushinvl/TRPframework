@@ -5,6 +5,7 @@ from models.presentations import (
     sort_presbyscore,
 )
 
+
 def test_presentation_creation():
     event = Event(1, "Конференция", 10)
     student = Student(1, "Якушин Владимир", "ЭФБО-16-24")
@@ -13,16 +14,18 @@ def test_presentation_creation():
     assert p.id == 1
     assert p.event is event
     assert p.student is student
-    assert p.check_duration() == "В регламенте"
+    assert p.check_duration() == "в регламенте"
     assert p.total_score == 9.3
     assert p.result == "1 место"
-    assert "В регламенте" in str(p)
+    assert "в регламенте" in str(p)
+
 
 def test_presentationdur():
     event = Event(1, "Конференция", 10)
     student = Student(1, "Студент", "Группа")
     p = Presentation(1, event, student, "Тема", 12, 4.0, 4.0)
-    assert p.check_duration() == "Превышен"
+    assert p.check_duration() == "превышен"
+
 
 def test_createpres():
     presentations = []
@@ -32,6 +35,7 @@ def test_createpres():
     assert len(presentations) == 1
     assert presentations[0].total_score == 8.0
     assert presentations[0].result == "2 место"
+
 
 def test_findpres():
     event = Event(1, "Конференция", 10)

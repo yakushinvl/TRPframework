@@ -12,8 +12,8 @@ class Presentation:
 
     def check_duration(self):
         if self.duration <= self.event.max_duration:
-            return "В регламенте"
-        return "Превышен"
+            return "в регламенте"
+        return "превышен"
 
     def calculate_total(self):
         return round(self.score_1 + self.score_2, 2)
@@ -26,27 +26,37 @@ class Presentation:
         elif self.total_score >= 7.0:
             return "3 место"
         else:
-            return "Участник"
+            return "участник"
 
     def __str__(self):
         status = self.check_duration()
         return (
             f"[{self.id}] {self.student.name} ({self.student.group}) | "
-            f"Мероприятие: {self.event.name} | "
-            f"Тема: {self.title} | "
-            f"Время: {self.duration} мин ({status}) | "
-            f"Балл: {self.total_score} | "
-            f"Результат: {self.result}"
+            f"мероприятие: {self.event.name} | "
+            f"тема: {self.title} | "
+            f"время: {self.duration} мин ({status}) | "
+            f"балл: {self.total_score} | "
+            f"результат: {self.result}"
         )
+
 
 def create_presentation(presentations, event, student, title, duration, score_1, score_2):
     p = Presentation(len(presentations) + 1, event, student, title, duration, score_1, score_2)
     presentations.append(p)
     return p
 
+
 def find_presbystud(presentations, query):
     q = query.lower()
     return [p for p in presentations if q in p.student.name.lower()]
 
+
 def sort_presbyscore(presentations):
     return sorted(presentations, key=lambda p: p.total_score, reverse=True)
+
+
+def find_presentation_by_id(presentations, presentation_id):
+    for p in presentations:
+        if p.id == presentation_id:
+            return p
+    return None
