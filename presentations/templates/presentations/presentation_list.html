@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}выступления – учёт выступлений{% endblock %}
+
+{% block content %}
+<h2>список выступлений</h2>
+<p class="text-muted">всего выступлений: {{ presentations|length }}</p>
+
+<ul class="list-group shadow-sm mt-3">
+    {% for p in presentations %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <a href="{% url 'presentations:detail' p.id %}" class="fw-bold text-decoration-none">
+                {{ p.student.name }} ({{ p.student.group }})
+            </a>
+            <div class="text-muted small">тема: «{{ p.title|default:"без темы" }}» | мероприятие: {{ p.event.name }}</div>
+        </div>
+        <div>
+            {% include "presentations/includes/duration_status.html" with presentation=p %}
+            <span class="badge {% if 'место' in p.result %}bg-primary{% else %}bg-secondary{% endif %}">
+                {{ p.result }} ({{ p.total_score }} б)
+            </span>
+        </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item">выступления не найдены</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'homepage:index' %}" class="btn btn-outline-secondary mt-3">← на главную</a>
+{% endblock %}

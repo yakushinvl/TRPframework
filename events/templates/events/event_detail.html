@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if event %}
+{{ event.name }} – учёт выступлений
+{% else %}
+мероприятие не найдено – учёт выступлений
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if event %}
+<div class="card shadow-sm mt-3 custom-card">
+    <div class="card-body">
+        <h4 class="card-title">{{ event.name }}</h4>
+        <p class="card-text"><strong>id:</strong> {{ event.id }}</p>
+        <p class="card-text"><strong>лимит выступления:</strong> {{ event.max_duration }} мин</p>
+        <a href="{% url 'events:list' %}" class="btn btn-outline-secondary">← к списку мероприятий</a>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-danger mt-3">
+    <h4>мероприятие не найдено</h4>
+    <p>мероприятие с указанным идентификатором отсутствует</p>
+    <a href="{% url 'events:list' %}" class="btn btn-outline-secondary mt-2">← к списку мероприятий</a>
+</div>
+{% endif %}
+{% endblock %}

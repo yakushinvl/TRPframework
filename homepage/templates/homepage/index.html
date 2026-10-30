@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}главная – учёт выступлений{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm custom-card">
+    <h1 class="display-5 fw-bold">сервис учёта выступлений студентов</h1>
+    <p class="lead">система регистрации, учёта и оценивания докладов на научных мероприятиях</p>
+    <hr class="my-4">
+    <p>выбери нужный раздел:</p>
+    <a href="{% url 'presentations:list' %}" class="btn btn-primary me-2">список выступлений</a>
+    <a href="{% url 'events:list' %}" class="btn btn-outline-secondary">мероприятия</a>
+</div>
+{% endblock %}

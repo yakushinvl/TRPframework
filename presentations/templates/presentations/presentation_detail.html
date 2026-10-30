@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if p %}
+выступление: {{ p.title }} – учёт выступлений
+{% else %}
+выступление не найдено – учёт выступлений
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if p %}
+<div class="card shadow-sm mt-3 custom-card">
+    <div class="card-body">
+        <h4 class="card-title">выступление №{{ p.id }}: «{{ p.title }}»</h4>
+        <hr>
+        <p><strong>студент:</strong> {{ p.student.name }} (группа: {{ p.student.group }})</p>
+        <p><strong>мероприятие:</strong> {{ p.event.name }} (лимит: {{ p.event.max_duration }} мин)</p>
+        <p><strong>время доклада:</strong> {{ p.duration }} мин ({% include "presentations/includes/duration_status.html" with presentation=p %})</p>
+        <p><strong>баллы жюри:</strong> {{ p.score_1 }} (доклад) + {{ p.score_2 }} (ответы) = <strong>{{ p.total_score }}</strong></p>
+        <p><strong>итог:</strong> <span class="badge {% if 'место' in p.result %}bg-primary{% else %}bg-secondary{% endif %} fs-6">{{ p.result }}</span></p>
+        <a href="{% url 'presentations:list' %}" class="btn btn-outline-secondary mt-2">← к списку выступлений</a>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-danger mt-3">
+    <h4>выступление не найдено</h4>
+    <p>выступление с указанным идентификатором отсутствует</p>
+    <a href="{% url 'presentations:list' %}" class="btn btn-outline-secondary mt-2">← к списку выступлений</a>
+</div>
+{% endif %}
+{% endblock %}

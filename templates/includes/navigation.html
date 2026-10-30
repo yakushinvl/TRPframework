@@ -1,0 +1,14 @@
+{% load static %}
+<nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:index' %}">
+            <img src="{% static 'homepage/img/logo.png' %}" alt="логотип" class="site-logo">
+            <span>учёт выступлений</span>
+        </a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="{% url 'homepage:index' %}">главная</a>
+            <a class="nav-link" href="{% url 'presentations:list' %}">выступления</a>
+            <a class="nav-link" href="{% url 'events:list' %}">мероприятия</a>
+        </div>
+    </div>
+</nav>
