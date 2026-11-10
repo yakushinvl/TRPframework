@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    group_name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    max_duration INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS presentations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    duration INTEGER NOT NULL,
+    score_1 REAL NOT NULL,
+    score_2 REAL NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
+);

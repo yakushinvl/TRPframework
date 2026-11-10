@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}статистика – учёт выступлений{% endblock %}
+
+{% block content %}
+<h2>статистика выступлений</h2>
+
+<div class="row g-3 my-3">
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="text-muted small">всего выступлений</div>
+            <div class="fs-4 fw-bold">{{ summary.total_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="text-muted small">среднее время</div>
+            <div class="fs-4 fw-bold">{{ summary.avg_duration|floatformat:1 }} мин</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="text-muted small">диапазон времени</div>
+            <div class="fs-4 fw-bold">{{ summary.min_duration }} – {{ summary.max_duration }} мин</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="text-muted small">средний балл</div>
+            <div class="fs-4 fw-bold">{{ summary.avg_score|floatformat:2 }}</div>
+        </div>
+    </div>
+</div>
+
+<h3 class="mt-4">показатели по мероприятиям</h3>
+<table class="table table-striped table-bordered mt-2 shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th>мероприятие</th>
+            <th>докладов</th>
+            <th>среднее время</th>
+            <th>средний балл</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in events_stats %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.count }}</td>
+            <td>{{ item.avg_duration|floatformat:1 }} мин</td>
+            <td>{{ item.avg_score|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">нет данных</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="mt-3">
+    <a href="{% url 'presentations:list' %}" class="btn btn-outline-secondary me-2">← к выступлениям</a>
+    <a href="{% url 'homepage:index' %}" class="btn btn-outline-secondary">← на главную</a>
+</div>
+{% endblock %}

@@ -1,18 +1,22 @@
 from django.shortcuts import render
-from models.events import find_event_by_id
-from storage import load_events
-
-EVENTS_FILE = "data/events.json"
+from db.database import get_connection
+from models.events import Event
 
 
 def event_list(request):
-    events = load_events(EVENTS_FILE)
+    with get_connection() as conn:
+        rows = conn.execute("SELECT id, name, max_duration FROM events ORDER BY id").fetchall()
+        events = [Event(row["id"], row["name"], row["max_duration"]) for row in rows]
     return render(request, "events/event_list.html", {"events": events})
 
 
 def event_detail(request, event_id):
-    events = load_events(EVENTS_FILE)
-    event = find_event_by_id(events, event_id)
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT id, name, max_duration FROM events WHERE id = ?",
+            (event_id,),
+        ).fetchone()
+    event = Event(row["id"], row["name"], row["max_duration"]) if row else None
     return render(
         request,
         "events/event_detail.html",
