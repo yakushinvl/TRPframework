@@ -1,95 +1,82 @@
-from django.shortcuts import render
-from db.database import get_connection
-from models.events import Event
-from models.presentations import Presentation
-from models.students import Student
-
-SELECT_PRESENTATION = """
-SELECT
-    p.id, p.title, p.duration, p.score_1, p.score_2,
-    s.id AS student_id, s.name AS student_name, s.group_name,
-    e.id AS event_id, e.name AS event_name, e.max_duration
-FROM presentations p
-JOIN students s ON p.student_id = s.id
-JOIN events e ON p.event_id = e.id
-"""
-
-
-def row_to_presentation(row):
-    student = Student(row["student_id"], row["student_name"], row["group_name"])
-    event = Event(row["event_id"], row["event_name"], row["max_duration"])
-    return Presentation(
-        row["id"],
-        event,
-        student,
-        row["title"],
-        row["duration"],
-        row["score_1"],
-        row["score_2"],
-    )
+from django.core.paginator import Paginator
+from django.db.models import Avg, Count, F, Max, Min, Q
+from django.shortcuts import get_object_or_404, render
+from events.models import Event
+from presentations.models import Presentation
+from students.models import Student
 
 
 def presentation_list(request):
     q = request.GET.get("q", "").strip()
-    sql = SELECT_PRESENTATION
-    params = []
+    event_id = request.GET.get("event", "").strip()
+    student_id = request.GET.get("student", "").strip()
+    sort = request.GET.get("sort", "id").strip()
+    regulation_only = request.GET.get("regulation", "").strip()
+
+    qs = Presentation.objects.select_related("event", "student")
+
     if q:
-        sql += " WHERE s.name LIKE ? OR p.title LIKE ?"
-        params = [f"%{q}%", f"%{q}%"]
-    sql += " ORDER BY p.id"
+        qs = qs.filter(Q(title__icontains=q) | Q(student__name__icontains=q))
 
-    with get_connection() as conn:
-        rows = conn.execute(sql, params).fetchall()
-        presentations = [row_to_presentation(r) for r in rows]
+    if event_id.isdigit():
+        qs = qs.filter(event_id=int(event_id))
 
-    return render(
-        request,
-        "presentations/presentation_list.html",
-        {"presentations": presentations, "q": q},
-    )
+    if student_id.isdigit():
+        qs = qs.filter(student_id=int(student_id))
+
+    if regulation_only == "1":
+        qs = qs.exclude(duration__gt=F("event__max_duration"))
+
+    sort_fields = {
+        "id": "id",
+        "title": "title",
+        "duration": "duration",
+        "-duration": "-duration",
+        "student": "student__name",
+        "event": "event__name",
+    }
+    sort_field = sort_fields.get(sort, "id")
+    qs = qs.order_by(sort_field, "id")
+
+    paginator = Paginator(qs, 5)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    context = {
+        "presentations": page_obj,
+        "page_obj": page_obj,
+        "events": Event.objects.order_by("name"),
+        "students": Student.objects.order_by("name"),
+        "q": q,
+        "selected_event": event_id,
+        "selected_student": student_id,
+        "selected_sort": sort,
+        "regulation_only": regulation_only,
+    }
+    return render(request, "presentations/presentation_list.html", context)
 
 
 def presentation_detail(request, presentation_id):
-    sql = SELECT_PRESENTATION + " WHERE p.id = ?"
-    with get_connection() as conn:
-        row = conn.execute(sql, (presentation_id,)).fetchone()
-    p = row_to_presentation(row) if row else None
-    return render(
-        request,
-        "presentations/presentation_detail.html",
-        {"p": p},
-        status=404 if p is None else 200,
+    p = get_object_or_404(
+        Presentation.objects.select_related("event", "student"),
+        pk=presentation_id,
     )
+    return render(request, "presentations/presentation_detail.html", {"p": p})
 
 
 def statistics(request):
-    with get_connection() as conn:
-        events_stats = conn.execute(
-            """
-            SELECT
-                e.id,
-                e.name,
-                COUNT(p.id) AS count,
-                COALESCE(AVG(p.duration), 0) AS avg_duration,
-                COALESCE(AVG(p.score_1 + p.score_2), 0) AS avg_score
-            FROM events e
-            LEFT JOIN presentations p ON e.id = p.event_id
-            GROUP BY e.id, e.name
-            ORDER BY e.id
-            """
-        ).fetchall()
-        summary = conn.execute(
-            """
-            SELECT
-                COUNT(id) AS total_count,
-                COALESCE(AVG(duration), 0) AS avg_duration,
-                COALESCE(MIN(duration), 0) AS min_duration,
-                COALESCE(MAX(duration), 0) AS max_duration,
-                COALESCE(AVG(score_1 + score_2), 0) AS avg_score
-            FROM presentations
-            """
-        ).fetchone()
+    events_stats = Event.objects.annotate(
+        count=Count("presentations"),
+        avg_duration=Avg("presentations__duration"),
+        avg_score=Avg(F("presentations__score_1") + F("presentations__score_2")),
+    ).order_by("-count", "name")
 
+    summary = Presentation.objects.aggregate(
+        total_count=Count("id"),
+        avg_duration=Avg("duration"),
+        min_duration=Min("duration"),
+        max_duration=Max("duration"),
+        avg_score=Avg(F("score_1") + F("score_2")),
+    )
     return render(
         request,
         "presentations/statistics.html",

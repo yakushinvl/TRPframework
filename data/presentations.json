@@ -16,5 +16,41 @@
     "duration": 7,
     "score_1": 4.5,
     "score_2": 4.5
+  },
+  {
+    "id": 3,
+    "event_id": 1,
+    "student_id": 3,
+    "title": "Микросервисы на Django",
+    "duration": 9,
+    "score_1": 4.9,
+    "score_2": 4.8
+  },
+  {
+    "id": 4,
+    "event_id": 2,
+    "student_id": 4,
+    "title": "Базы данных и SQL",
+    "duration": 12,
+    "score_1": 4.7,
+    "score_2": 4.6
+  },
+  {
+    "id": 5,
+    "event_id": 2,
+    "student_id": 1,
+    "title": "Основы веб-разработки",
+    "duration": 11,
+    "score_1": 4.6,
+    "score_2": 4.7
+  },
+  {
+    "id": 6,
+    "event_id": 2,
+    "student_id": 3,
+    "title": "Тестирование в Python",
+    "duration": 14,
+    "score_1": 4.8,
+    "score_2": 4.9
   }
 ]

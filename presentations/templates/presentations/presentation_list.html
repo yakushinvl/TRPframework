@@ -4,17 +4,57 @@
 
 {% block content %}
 <h2>список выступлений</h2>
-<p class="text-muted">всего выступлений: {{ presentations|length }}</p>
+<p class="text-muted">всего выступлений: {{ page_obj.paginator.count }}</p>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <input type="text" name="q" class="form-control" placeholder="поиск по теме или студенту" value="{{ q }}">
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">найти</button>
-        {% if q %}
-        <a href="{% url 'presentations:list' %}" class="btn btn-outline-secondary">сбросить</a>
-        {% endif %}
+<form method="get" class="card shadow-sm p-3 mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small text-muted">поиск</label>
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="тема или студент" value="{{ q }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">мероприятие</label>
+            <select name="event" class="form-select form-select-sm">
+                <option value="">все мероприятия</option>
+                {% for ev in events %}
+                <option value="{{ ev.pk }}" {% if selected_event == ev.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ ev.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">студент</label>
+            <select name="student" class="form-select form-select-sm">
+                <option value="">все студенты</option>
+                {% for st in students %}
+                <option value="{{ st.pk }}" {% if selected_student == st.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ st.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">сортировка</label>
+            <select name="sort" class="form-select form-select-sm">
+                <option value="id" {% if selected_sort == "id" %}selected{% endif %}>по номеру</option>
+                <option value="title" {% if selected_sort == "title" %}selected{% endif %}>по названию темы</option>
+                <option value="duration" {% if selected_sort == "duration" %}selected{% endif %}>по времени (возрастание)</option>
+                <option value="-duration" {% if selected_sort == "-duration" %}selected{% endif %}>по времени (убывание)</option>
+                <option value="student" {% if selected_sort == "student" %}selected{% endif %}>по студенту</option>
+                <option value="event" {% if selected_sort == "event" %}selected{% endif %}>по мероприятию</option>
+            </select>
+        </div>
+        <div class="col-md-6 pt-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="regulation" value="1" id="regCheck" {% if regulation_only == "1" %}checked{% endif %}>
+                <label class="form-check-label small" for="regCheck">только выступления в регламенте</label>
+            </div>
+        </div>
+        <div class="col-md-6 text-end pt-2">
+            <button type="submit" class="btn btn-sm btn-primary">применить</button>
+            <a href="{% url 'presentations:list' %}" class="btn btn-sm btn-outline-secondary">сбросить</a>
+        </div>
     </div>
 </form>
 
@@ -38,6 +78,45 @@
     <li class="list-group-item">выступления не найдены</li>
     {% endfor %}
 </ul>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="навигация по страницам" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">назад</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">назад</span>
+        </li>
+        {% endif %}
+
+        {% for page_number in page_obj.paginator.page_range %}
+        {% if page_number == page_obj.number %}
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ page_number }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="{% querystring page=page_number %}">{{ page_number }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{% querystring page=page_obj.next_page_number %}">далее</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">далее</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
 <div class="mt-3">
     <a href="{% url 'presentations:statistics' %}" class="btn btn-outline-primary me-2">статистика</a>
     <a href="{% url 'homepage:index' %}" class="btn btn-outline-secondary">← на главную</a>
