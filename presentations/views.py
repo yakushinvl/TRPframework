@@ -10,6 +10,7 @@ def presentation_list(request):
     q = request.GET.get("q", "").strip()
     event_id = request.GET.get("event", "").strip()
     student_id = request.GET.get("student", "").strip()
+    status_filter = request.GET.get("status", "").strip()
     sort = request.GET.get("sort", "id").strip()
     regulation_only = request.GET.get("regulation", "").strip()
 
@@ -23,6 +24,9 @@ def presentation_list(request):
 
     if student_id.isdigit():
         qs = qs.filter(student_id=int(student_id))
+
+    if status_filter in dict(Presentation.Status.choices):
+        qs = qs.filter(status=status_filter)
 
     if regulation_only == "1":
         qs = qs.exclude(duration__gt=F("event__max_duration"))
@@ -46,9 +50,11 @@ def presentation_list(request):
         "page_obj": page_obj,
         "events": Event.objects.order_by("name"),
         "students": Student.objects.order_by("name"),
+        "statuses": Presentation.Status.choices,
         "q": q,
         "selected_event": event_id,
         "selected_student": student_id,
+        "selected_status": status_filter,
         "selected_sort": sort,
         "regulation_only": regulation_only,
     }
@@ -77,8 +83,19 @@ def statistics(request):
         max_duration=Max("duration"),
         avg_score=Avg(F("score_1") + F("score_2")),
     )
+
+    status_counts = {
+        "active": Presentation.objects.active().count(),
+        "completed": Presentation.objects.completed().count(),
+        "cancelled": Presentation.objects.cancelled().count(),
+    }
+
     return render(
         request,
         "presentations/statistics.html",
-        {"events_stats": events_stats, "summary": summary},
+        {
+            "events_stats": events_stats,
+            "summary": summary,
+            "status_counts": status_counts,
+        },
     )

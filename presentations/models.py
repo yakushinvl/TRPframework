@@ -3,7 +3,27 @@ from events.models import Event
 from students.models import Student
 
 
+class PresentationQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(status=Presentation.Status.ACTIVE)
+
+    def completed(self):
+        return self.filter(status=Presentation.Status.COMPLETED)
+
+    def cancelled(self):
+        return self.filter(status=Presentation.Status.CANCELLED)
+
+
+class PresentationManager(models.Manager.from_queryset(PresentationQuerySet)):
+    pass
+
+
 class Presentation(models.Model):
+    class Status(models.TextChoices):
+        ACTIVE = "active", "активно"
+        COMPLETED = "completed", "завершено"
+        CANCELLED = "cancelled", "отменено"
+
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
@@ -20,6 +40,14 @@ class Presentation(models.Model):
     duration = models.PositiveIntegerField(verbose_name="время доклада")
     score_1 = models.FloatField(verbose_name="балл за доклад")
     score_2 = models.FloatField(verbose_name="балл за ответы")
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.ACTIVE,
+        verbose_name="статус",
+    )
+
+    objects = PresentationManager()
 
     class Meta:
         ordering = ["id"]

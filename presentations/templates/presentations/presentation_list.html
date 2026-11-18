@@ -12,7 +12,7 @@
             <label class="form-label small text-muted">поиск</label>
             <input type="text" name="q" class="form-control form-control-sm" placeholder="тема или студент" value="{{ q }}">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label class="form-label small text-muted">мероприятие</label>
             <select name="event" class="form-select form-select-sm">
                 <option value="">все мероприятия</option>
@@ -23,13 +23,24 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label class="form-label small text-muted">студент</label>
             <select name="student" class="form-select form-select-sm">
                 <option value="">все студенты</option>
                 {% for st in students %}
                 <option value="{{ st.pk }}" {% if selected_student == st.pk|stringformat:"s" %}selected{% endif %}>
                     {{ st.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted">статус</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">все статусы</option>
+                {% for st_val, st_label in statuses %}
+                <option value="{{ st_val }}" {% if selected_status == st_val %}selected{% endif %}>
+                    {{ st_label }}
                 </option>
                 {% endfor %}
             </select>
@@ -68,6 +79,9 @@
             <div class="text-muted small">тема: «{{ p.title|default:"без темы" }}» | мероприятие: {{ p.event.name }}</div>
         </div>
         <div>
+            <span class="badge {% if p.status == 'active' %}bg-success{% elif p.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %} me-1">
+                {{ p.get_status_display }}
+            </span>
             {% include "presentations/includes/duration_status.html" with presentation=p %}
             <span class="badge {% if 'место' in p.result %}bg-primary{% else %}bg-secondary{% endif %}">
                 {{ p.result }} ({{ p.total_score }} б)

@@ -4,9 +4,11 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tracker.settings")
 django.setup()
 
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Avg, Count, F, Max, Min, Q
-from django.test import Client
+from django.test import Client, RequestFactory
+from events.context_processors import events_context
 from events.models import Event
 from presentations.models import Presentation
 from students.models import Student
@@ -129,3 +131,69 @@ def test_views_endpoints():
     assert client.get("/presentations/1/").status_code == 200
     assert client.get("/presentations/9999/").status_code == 404
     assert client.get("/presentations/statistics/").status_code == 200
+
+
+def test_slug_and_generated_field():
+    ev, _ = Event.objects.get_or_create(
+        name="Большая конференция 2026",
+        defaults={"max_duration": 20},
+    )
+    assert ev.slug is not None
+    assert "bolshaia-konferentsiia-2026" in ev.slug
+    assert ev.is_long is True
+    assert ev.get_absolute_url() == f"/events/{ev.slug}/"
+
+    client = Client()
+    resp = client.get(ev.get_absolute_url())
+    assert resp.status_code == 200
+
+
+def test_presentation_statuses_and_manager():
+    event, _ = Event.objects.get_or_create(name="Тест Статусов", defaults={"max_duration": 15})
+    student, _ = Student.objects.get_or_create(name="Тест Студент", defaults={"group": "ЭФБО-16-24"})
+
+    p_active, _ = Presentation.objects.get_or_create(
+        event=event,
+        student=student,
+        title="Активный доклад",
+        defaults={"duration": 10, "score_1": 4.0, "score_2": 4.0, "status": Presentation.Status.ACTIVE},
+    )
+    p_cancelled, _ = Presentation.objects.get_or_create(
+        event=event,
+        student=student,
+        title="Отмененный доклад",
+        defaults={"duration": 5, "score_1": 0.0, "score_2": 0.0, "status": Presentation.Status.CANCELLED},
+    )
+
+    assert Presentation.objects.active().filter(pk=p_active.pk).exists()
+    assert Presentation.objects.cancelled().filter(pk=p_cancelled.pk).exists()
+    assert not Presentation.objects.completed().filter(pk=p_cancelled.pk).exists()
+
+
+def test_context_processor():
+    rf = RequestFactory()
+    req = rf.get("/")
+    ctx = events_context(req)
+    assert "site_name" in ctx
+    assert "events_count" in ctx
+    assert ctx["events_count"] == Event.objects.count()
+
+
+def test_admin_panel():
+    User = get_user_model()
+    admin_user, _ = User.objects.get_or_create(
+        username="admin",
+        defaults={"is_superuser": True, "is_staff": True},
+    )
+    admin_user.set_password("admin")
+    admin_user.is_superuser = True
+    admin_user.is_staff = True
+    admin_user.save()
+
+    client = Client()
+    client.login(username="admin", password="admin")
+
+    assert client.get("/admin/").status_code == 200
+    assert client.get("/admin/events/event/").status_code == 200
+    assert client.get("/admin/students/student/").status_code == 200
+    assert client.get("/admin/presentations/presentation/").status_code == 200

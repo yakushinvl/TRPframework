@@ -14,7 +14,9 @@
     <div class="card-body">
         <h4 class="card-title">{{ event.name }}</h4>
         <p class="card-text"><strong>id:</strong> {{ event.id }}</p>
+        <p class="card-text"><strong>url (slug):</strong> {{ event.slug }}</p>
         <p class="card-text"><strong>лимит выступления:</strong> {{ event.max_duration }} мин</p>
+        <p class="card-text"><strong>длительное мероприятие:</strong> {% if event.is_long %}<span class="badge bg-info text-dark">да (≥15 мин)</span>{% else %}<span class="badge bg-secondary">нет (<15 мин)</span>{% endif %}</p>
         <a href="{% url 'events:list' %}" class="btn btn-outline-secondary">← к списку мероприятий</a>
     </div>
 </div>
